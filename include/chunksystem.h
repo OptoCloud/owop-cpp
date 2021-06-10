@@ -5,6 +5,7 @@
 #include "color.h"
 #include "constants.h"
 
+#include <shared_mutex>
 #include <unordered_map>
 #include <memory>
 #include <array>
@@ -28,6 +29,7 @@ public:
     bool unprotectChunk(std::int32_t x, std::int32_t y);
     bool isChunkProtected(std::int32_t x, std::int32_t y);
 private:
+    std::shared_mutex l_chunks;
     std::unordered_map<std::uint64_t, std::shared_ptr<OWOP::Chunk>> m_chunks;
 };
 }

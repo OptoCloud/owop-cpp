@@ -108,6 +108,7 @@ bool OWOP::ChunkSystem::unprotectChunk(std::int32_t x, std::int32_t y)
 
 bool OWOP::ChunkSystem::isChunkProtected(std::int32_t x, std::int32_t y)
 {
+    s
     auto it = m_chunks.find(getMapKey(x, y));
 
     if (it != m_chunks.end()) {
