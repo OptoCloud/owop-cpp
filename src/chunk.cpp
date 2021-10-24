@@ -1,32 +1,59 @@
 #include "chunk.h"
 
+#include <mutex>
+
 enum ChunkFlags : std::uint8_t
 {
     Protected = 1 << 0,
 };
 
-constexpr std::uint32_t getPixelIndex(std::uint8_t x, std::uint8_t y) {
-    if (x >= OWOP::CHUNK_SIZE || y >= OWOP::CHUNK_SIZE) {
-        throw "Beyond buffer exception TODO"; // TODO: fix this
-    }
-
+constexpr std::uint32_t GetPixelIndex(std::uint8_t x, std::uint8_t y) {
     return (OWOP::CHUNK_SIZE * y + x) * OWOP::Internal::PIXEL_BYTES;
+}
+template <ChunkFlags F>
+constexpr void SetFlag(std::atomic_uint8_t& flags) noexcept {
+    flags.fetch_or(F, std::memory_order::relaxed);
+}
+template <ChunkFlags F>
+constexpr void ClearFlag(std::atomic_uint8_t& flags) noexcept {
+    flags.fetch_and(~F, std::memory_order::relaxed);
+}
+template <ChunkFlags F>
+constexpr bool CheckFlag(const std::atomic_uint8_t& flags) noexcept {
+    return (flags.load(std::memory_order::relaxed) & F) != 0;
+}
+constexpr bool IsInBounds(std::uint32_t index) noexcept {
+    return (index + OWOP::Internal::PIXEL_BYTES) < OWOP::Internal::CHUNK_BYTES;
 }
 
 OWOP::Chunk::Chunk()
-    : m_data{ 0 }
+    : m_data{ std::byte(0) }
     , m_flags(0)
+    , m_mtx()
 {
 }
 
-OWOP::Chunk::Chunk(const OWOP::Chunk& other)
-    : m_data(other.m_data)
-    , m_flags(other.m_flags)
+OWOP::Chunk::Chunk(const Chunk& other)
+    : m_mtx()
 {
+    std::shared_lock l(other.m_mtx);
+    m_data = other.m_data;
+    m_flags.store(other.m_flags.load(std::memory_order::relaxed), std::memory_order::relaxed);
+}
+
+OWOP::Chunk::Chunk(Chunk&& other) noexcept
+    : m_mtx()
+{
+    std::shared_lock l(other.m_mtx);
+    m_data = std::move(other.m_data);
+    m_flags.store(other.m_flags.load(std::memory_order::relaxed), std::memory_order::relaxed);
+    other.m_data = { std::byte(0) };
+    other.m_flags.store(0, std::memory_order::relaxed);
 }
 
 OWOP::Chunk::Chunk(std::span<const OWOP::Color, OWOP::Internal::CHUNK_PIXELS> pixels, bool isProtected)
     : m_flags(0)
+    , m_mtx()
 {
     for (std::size_t index = 0; index < OWOP::Internal::CHUNK_PIXELS; index++) {
         auto pixelData = pixels[index].data();
@@ -34,45 +61,64 @@ OWOP::Chunk::Chunk(std::span<const OWOP::Color, OWOP::Internal::CHUNK_PIXELS> pi
     }
 
     if (isProtected) {
-        m_flags |= ChunkFlags::Protected;
+        SetFlag<ChunkFlags::Protected>(m_flags);
     }
 }
 
-OWOP::Chunk::Chunk(std::span<const std::uint8_t, OWOP::Internal::CHUNK_BYTES> data, bool isProtected)
+OWOP::Chunk::Chunk(std::span<const std::byte, OWOP::Internal::CHUNK_BYTES> data, bool isProtected)
     : m_flags(0)
+    , m_mtx()
 {
     std::copy(data.begin(), data.end(), m_data.begin());
 
     if (isProtected) {
-        m_flags |= ChunkFlags::Protected;
+        SetFlag<ChunkFlags::Protected>(m_flags);
     }
 }
 
 OWOP::Color OWOP::Chunk::getPixel(std::uint8_t x, std::uint8_t y) const
 {
-    auto index = getPixelIndex(x, y);
+    std::shared_lock l(m_mtx);
+
+    auto index = GetPixelIndex(x, y);
 
     OWOP::Color pixel;
 
-    auto beg = m_data.begin() + index;
-    auto end = beg + OWOP::Internal::PIXEL_BYTES;
+    if (IsInBounds(index)) {
+        auto beg = m_data.begin() + index;
+        auto end = beg + OWOP::Internal::PIXEL_BYTES;
 
-    std::copy(beg, end, pixel.data().begin());
+        std::copy(beg, end, pixel.data().begin());
+    }
 
     return pixel;
 }
 
-void OWOP::Chunk::setPixel(std::uint8_t x, std::uint8_t y, OWOP::Color pixel)
+bool OWOP::Chunk::setPixel(std::uint8_t x, std::uint8_t y, const OWOP::Color& pixel)
 {
-    auto index = getPixelIndex(x, y);
+    std::unique_lock l(m_mtx);
+
+    auto index = GetPixelIndex(x, y);
+
+    if (CheckFlag<ChunkFlags::Protected>(m_flags) || !IsInBounds(index)) {
+        return false;
+    }
 
     auto pixelData = pixel.data();
 
     std::copy(pixelData.begin(), pixelData.end(), m_data.begin() + index);
+
+    return true;
 }
 
-void OWOP::Chunk::fill(OWOP::Color color)
+bool OWOP::Chunk::fill(OWOP::Color color) noexcept
 {
+    std::unique_lock l(m_mtx);
+
+    if (CheckFlag<ChunkFlags::Protected>(m_flags)) {
+        return false;
+    }
+
     auto colorDat = color.data();
 
     for (std::uint16_t i = 0; i < OWOP::Internal::CHUNK_BYTES;) {
@@ -80,26 +126,50 @@ void OWOP::Chunk::fill(OWOP::Color color)
         m_data[i++] = colorDat[1];
         m_data[i++] = colorDat[2];
     }
+
+    return true;
 }
 
 void OWOP::Chunk::protect() noexcept
 {
-    m_flags |= ChunkFlags::Protected;
+    SetFlag<ChunkFlags::Protected>(m_flags);
 }
 
 void OWOP::Chunk::unprotect() noexcept
 {
-    m_flags &= ~ChunkFlags::Protected;
+    ClearFlag<ChunkFlags::Protected>(m_flags);
 }
 
 bool OWOP::Chunk::isProtected() const noexcept
 {
-    return (m_flags & ChunkFlags::Protected) != 0;
+    std::shared_lock l(m_mtx);
+    return CheckFlag<ChunkFlags::Protected>(m_flags);
 }
 
-OWOP::Chunk& OWOP::Chunk::operator=(const OWOP::Chunk& other)
+OWOP::Chunk& OWOP::Chunk::operator=(const Chunk& other)
 {
-    this->m_data = other.m_data;
-    this->m_flags = other.m_flags;
+    if (this != &other) {
+        std::unique_lock l_this(m_mtx, std::defer_lock);
+        std::shared_lock l_other(other.m_mtx, std::defer_lock);
+        std::lock(l_this, l_other);
+
+        m_data = other.m_data;
+        m_flags.store(other.m_flags.load(std::memory_order::relaxed), std::memory_order::relaxed);
+    }
+    return *this;
+}
+
+OWOP::Chunk& OWOP::Chunk::operator=(Chunk&& other) noexcept
+{
+    if (this != &other) {
+        std::unique_lock l_this(m_mtx, std::defer_lock);
+        std::unique_lock l_other(other.m_mtx, std::defer_lock);
+        std::lock(l_this, l_other);
+
+        m_data = std::move(other.m_data);
+        m_flags.store(other.m_flags.load(std::memory_order::relaxed), std::memory_order::relaxed);
+        other.m_data = { std::byte(0) };
+        other.m_flags.store(0, std::memory_order::relaxed);
+    }
     return *this;
 }

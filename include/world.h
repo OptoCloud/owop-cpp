@@ -1,34 +1,36 @@
 #ifndef OWOPCPP_WORLD_H
 #define OWOPCPP_WORLD_H
 
-#include "color.h"
-#include "tooltype.h"
+#include "godef.h"
+#include "chunksystem.h"
+#include "player.h"
+#include "uuid.h"
 
 #include <string>
+#include <queue>
+#include <unordered_map>
+#include <shared_mutex>
 
 namespace OWOP {
+
 class World
 {
 public:
-    World();
+    World(std::string_view name, std::string_view adminPassword);
+    ~World();
 
-    bool join(const std::string& world = "main");
-    void leave();
-    void destroy();
+    std::string name() const;
+    _GoString_ nameGostr() const;
 
-    bool move(std::int64_t x, std::int64_t y);
-    OWOP::Color getPixel(std::int64_t x, std::int64_t y);
-    bool setPixel(std::int64_t x, std::int64_t y, OWOP::Color color, bool sneaky);
-
-    // bool paste( ??? );
-
-    bool setTool(OWOP::ToolType tool);
-    bool setColor(OWOP::Color color);
-
-    void requestChunk(std::int64_t x, std::int64_t y, bool inaccurate);
-    bool protectChunk(std::int64_t x, std::int64_t y, bool newState);
-    bool clearChunk(std::int64_t x, std::int64_t y, OWOP::Color color);
+    OWOP::Color GetPixel(std::int64_t x, std::int64_t y);
+    bool SetPixel(std::int64_t x, std::int64_t y, OWOP::Color c);
+private:
+    mutable std::shared_mutex l_name;
+    std::string m_name;
+    std::unordered_map<OWOP::Uuid, OWOP::Player> m_players;
+    OWOP::ChunkSystem m_chunkSystem;
 };
+
 }
 
 #endif // OWOPCPP_WORLD_H

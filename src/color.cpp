@@ -1,7 +1,7 @@
 #include "color.h"
 
 OWOP::Color::Color()
-    : m_data{ 0 }
+    : m_data{ std::byte(0) }
 {
 }
 
@@ -11,51 +11,51 @@ OWOP::Color::Color(const OWOP::Color& other)
 }
 
 OWOP::Color::Color(std::uint8_t r, std::uint8_t g, std::uint8_t b)
-    : m_data{ r, g, b }
+    : m_data{ std::byte(r), std::byte(g), std::byte(b) }
 {
 }
 
-OWOP::Color::Color(std::span<const std::uint8_t, OWOP::Internal::PIXEL_BYTES> data)
+OWOP::Color::Color(std::span<const std::byte, OWOP::Internal::PIXEL_BYTES> data)
 {
     std::copy(data.begin(), data.end(), m_data.begin());
 }
 
 std::uint8_t OWOP::Color::getR() const noexcept
 {
-    return m_data[0];
+    return (std::uint8_t)m_data[0];
 }
 
 std::uint8_t OWOP::Color::getG() const noexcept
 {
-    return m_data[1];
+    return (std::uint8_t)m_data[1];
 }
 
 std::uint8_t OWOP::Color::getB() const noexcept
 {
-    return m_data[2];
+    return (std::uint8_t)m_data[2];
 }
 
 void OWOP::Color::setR(std::uint8_t value) noexcept
 {
-    m_data[0] = value;
+    m_data[0] = (std::byte)value;
 }
 
 void OWOP::Color::setG(std::uint8_t value) noexcept
 {
-    m_data[1] = value;
+    m_data[1] = (std::byte)value;
 }
 
 void OWOP::Color::setB(std::uint8_t value) noexcept
 {
-    m_data[2] = value;
+    m_data[2] = (std::byte)value;
 }
 
-std::span<std::uint8_t, OWOP::Internal::PIXEL_BYTES> OWOP::Color::data() noexcept
+std::span<std::byte, OWOP::Internal::PIXEL_BYTES> OWOP::Color::data() noexcept
 {
     return m_data;
 }
 
-std::span<const std::uint8_t, OWOP::Internal::PIXEL_BYTES> OWOP::Color::data() const noexcept
+std::span<const std::byte, OWOP::Internal::PIXEL_BYTES> OWOP::Color::data() const noexcept
 {
     return m_data;
 }

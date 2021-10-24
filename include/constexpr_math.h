@@ -1,13 +1,20 @@
 #ifndef OWOCPP_CONSTEXPR_MATH_H
 #define OWOCPP_CONSTEXPR_MATH_H
 
-#include <cstdlib>
-#include <cstdint>
+#include <type_traits>
 
 namespace OWOP::Internal::Math {
-constexpr std::size_t Pow(std::size_t base, std::size_t exponent) noexcept
+template <typename T>
+constexpr T Mult(T a, T b) noexcept
 {
-    std::size_t result = 1;
+    static_assert(std::is_integral<T>::value, "Integral required.");
+    return a * b;
+}
+template <typename T>
+constexpr T Pow(T base, T exponent) noexcept
+{
+    static_assert(std::is_integral<T>::value, "Integral required.");
+    T result = 1;
     while (exponent != 0) {
         result *= base;
 

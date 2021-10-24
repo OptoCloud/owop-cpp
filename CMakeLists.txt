@@ -9,31 +9,27 @@ project (owopcpp
 set (CMAKE_CXX_STANDARD 20)
 
 set(owopcpp_sources
-    src/client.cpp
+    src/goapi.cpp
     src/player.cpp
     src/world.cpp
-    src/chat.cpp
-    src/networking.cpp
-    src/clientoptions.cpp
+    src/worldmanager.cpp
+    src/uuid.cpp
     src/chunksystem.cpp
     src/chunk.cpp
     src/color.cpp
-    src/bucket.cpp
 )
 set(owopcpp_headers
+    include/goapi.h
+    include/godef.h
     include/owopcpp.h
-    include/client.h
     include/player.h
-    include/world
-    include/chat.h
-    include/networking.h
-    include/clientoptions.h
+    include/world.h
+    include/worldmanager.h
+    include/uuid.h
     include/chunksystem.h
     include/chunk.h
     include/color.h
-    include/bucket.h
     include/opcodes.h
-    include/captchastate.h
     include/constants.h
     include/tooltype.h
     include/playerrank.h
@@ -52,4 +48,7 @@ else ()
     )
 endif ()
 
-target_include_directories(owopcpp PRIVATE include)
+target_include_directories(owopcpp PRIVATE
+    vendor/parallel-hashmap/parallel_hashmap
+    include
+)
