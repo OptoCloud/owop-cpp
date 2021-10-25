@@ -6,6 +6,7 @@ project (owopcpp
     LANGUAGES CXX
 )
 
+set (CMAKE_CXX_FLAGS -DCOMPILE_GOAPI)
 set (CMAKE_CXX_STANDARD 20)
 
 set(owopcpp_sources
@@ -16,7 +17,6 @@ set(owopcpp_sources
     src/uuid.cpp
     src/chunksystem.cpp
     src/chunk.cpp
-    src/color.cpp
 )
 set(owopcpp_headers
     include/goapi.h
@@ -28,7 +28,7 @@ set(owopcpp_headers
     include/uuid.h
     include/chunksystem.h
     include/chunk.h
-    include/color.h
+    include/pixel.h
     include/opcodes.h
     include/constants.h
     include/tooltype.h

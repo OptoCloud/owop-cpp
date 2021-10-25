@@ -31,6 +31,7 @@ OWOP::Chunk::Chunk()
     , m_flags(0)
     , m_mtx()
 {
+    printf("Chunk created!\n");
 }
 
 OWOP::Chunk::Chunk(const Chunk& other)
@@ -51,13 +52,17 @@ OWOP::Chunk::Chunk(Chunk&& other) noexcept
     other.m_flags.store(0, std::memory_order::relaxed);
 }
 
-OWOP::Chunk::Chunk(std::span<const OWOP::Color, OWOP::Internal::CHUNK_PIXELS> pixels, bool isProtected)
+OWOP::Chunk::Chunk(std::span<const OWOP::Pixel, OWOP::Internal::CHUNK_PIXELS> pixels, bool isProtected)
     : m_flags(0)
     , m_mtx()
 {
-    for (std::size_t index = 0; index < OWOP::Internal::CHUNK_PIXELS; index++) {
-        auto pixelData = pixels[index].data();
-        std::copy(pixelData.begin(), pixelData.end(), m_data.begin() + index);
+    auto pit = pixels.begin();
+    auto dit = m_data.begin();
+    while (pit != pixels.end()) {
+        const auto& data = pit->data();
+        std::copy(data.begin(), data.end(), dit);
+        pit += 1;
+        dit += 3;
     }
 
     if (isProtected) {
@@ -76,13 +81,13 @@ OWOP::Chunk::Chunk(std::span<const std::byte, OWOP::Internal::CHUNK_BYTES> data,
     }
 }
 
-OWOP::Color OWOP::Chunk::getPixel(std::uint8_t x, std::uint8_t y) const
+OWOP::Pixel OWOP::Chunk::getPixel(std::uint8_t x, std::uint8_t y) const
 {
     std::shared_lock l(m_mtx);
 
     auto index = GetPixelIndex(x, y);
 
-    OWOP::Color pixel;
+    OWOP::Pixel pixel;
 
     if (IsInBounds(index)) {
         auto beg = m_data.begin() + index;
@@ -94,7 +99,7 @@ OWOP::Color OWOP::Chunk::getPixel(std::uint8_t x, std::uint8_t y) const
     return pixel;
 }
 
-bool OWOP::Chunk::setPixel(std::uint8_t x, std::uint8_t y, const OWOP::Color& pixel)
+bool OWOP::Chunk::setPixel(std::uint8_t x, std::uint8_t y, const OWOP::Pixel& pixel)
 {
     std::unique_lock l(m_mtx);
 
@@ -111,7 +116,7 @@ bool OWOP::Chunk::setPixel(std::uint8_t x, std::uint8_t y, const OWOP::Color& pi
     return true;
 }
 
-bool OWOP::Chunk::fill(OWOP::Color color) noexcept
+bool OWOP::Chunk::fill(OWOP::Pixel color) noexcept
 {
     std::unique_lock l(m_mtx);
 
@@ -121,10 +126,8 @@ bool OWOP::Chunk::fill(OWOP::Color color) noexcept
 
     auto colorDat = color.data();
 
-    for (std::uint16_t i = 0; i < OWOP::Internal::CHUNK_BYTES;) {
-        m_data[i++] = colorDat[0];
-        m_data[i++] = colorDat[1];
-        m_data[i++] = colorDat[2];
+    for (auto it = m_data.begin(); it != m_data.end(); it += OWOP::Internal::PIXEL_BYTES) {
+        std::copy(colorDat.begin(), colorDat.end(), it);
     }
 
     return true;
@@ -145,6 +148,17 @@ bool OWOP::Chunk::isProtected() const noexcept
     std::shared_lock l(m_mtx);
     return CheckFlag<ChunkFlags::Protected>(m_flags);
 }
+
+#ifdef COMPILE_GOAPI
+static_assert (sizeof(CChunk::data) == OWOP::Internal::CHUNK_BYTES, "GO API differs in size for Chunk data!");
+CChunk OWOP::Chunk::cchunk() const noexcept {
+    CChunk c;
+    c.flags = m_flags.load(std::memory_order::relaxed);
+    std::shared_lock l(m_mtx);
+    memcpy(c.data, m_data.data(), OWOP::Internal::CHUNK_BYTES);
+    return c;
+}
+#endif
 
 OWOP::Chunk& OWOP::Chunk::operator=(const Chunk& other)
 {

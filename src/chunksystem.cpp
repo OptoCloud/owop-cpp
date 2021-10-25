@@ -6,7 +6,7 @@ constexpr std::uint64_t GetMapKey(std::int32_t x, std::int32_t y) noexcept {
 
 OWOP::ChunkSystem::ChunkSystem()
 {
-    printf("ChunkSystem Created!\n");
+    printf("ChunkSystem created!\n");
 }
 
 void OWOP::ChunkSystem::setChunk(std::int32_t x, std::int32_t y, const OWOP::Chunk& chunk)
@@ -14,12 +14,22 @@ void OWOP::ChunkSystem::setChunk(std::int32_t x, std::int32_t y, const OWOP::Chu
     m_chunks[GetMapKey(x, y)] = chunk;
 }
 
-OWOP::Chunk OWOP::ChunkSystem::getChunk(std::int32_t x, std::int32_t y)
+void OWOP::ChunkSystem::getChunk(std::int32_t x, std::int32_t y, OWOP::Chunk& chunk)
 {
-    return m_chunks[GetMapKey(x, y)];
+    chunk = m_chunks[GetMapKey(x, y)];
 }
 
-bool OWOP::ChunkSystem::setPixel(std::int64_t x, std::int64_t y, OWOP::Color pixel)
+CChunk OWOP::ChunkSystem::getCChunk(std::int32_t x, std::int32_t y)
+{
+    return m_chunks[GetMapKey(x,y)].cchunk();
+}
+
+bool OWOP::ChunkSystem::fillChunk(std::int32_t x, std::int32_t y, OWOP::Pixel pixel)
+{
+    return m_chunks[GetMapKey(x, y)].fill(pixel);
+}
+
+bool OWOP::ChunkSystem::setPixel(std::int64_t x, std::int64_t y, OWOP::Pixel pixel)
 {
     std::int32_t chunkX = x / OWOP::CHUNK_SIZE;
     std::int32_t chunkY = y / OWOP::CHUNK_SIZE;
@@ -29,7 +39,7 @@ bool OWOP::ChunkSystem::setPixel(std::int64_t x, std::int64_t y, OWOP::Color pix
     return m_chunks[GetMapKey(chunkX, chunkY)].setPixel(pixelX, pixelY, pixel);
 }
 
-OWOP::Color OWOP::ChunkSystem::getPixel(std::int64_t x, std::int64_t y)
+OWOP::Pixel OWOP::ChunkSystem::getPixel(std::int64_t x, std::int64_t y)
 {
     std::int32_t chunkX = x / OWOP::CHUNK_SIZE;
     std::int32_t chunkY = y / OWOP::CHUNK_SIZE;

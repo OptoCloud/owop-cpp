@@ -20,10 +20,12 @@ public:
     ~World();
 
     std::string name() const;
+#ifdef COMPILE_GOAPI
     _GoString_ nameGostr() const;
+#endif // COMPILE_GOAPI
 
-    OWOP::Color GetPixel(std::int64_t x, std::int64_t y);
-    bool SetPixel(std::int64_t x, std::int64_t y, OWOP::Color c);
+    OWOP::Pixel GetPixel(std::int64_t x, std::int64_t y);
+    bool SetPixel(std::int64_t x, std::int64_t y, OWOP::Pixel c);
 private:
     mutable std::shared_mutex l_name;
     std::string m_name;
