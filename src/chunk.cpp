@@ -31,7 +31,6 @@ OWOP::Chunk::Chunk()
     , m_flags(0)
     , m_mtx()
 {
-    printf("Chunk created!\n");
 }
 
 OWOP::Chunk::Chunk(const Chunk& other)

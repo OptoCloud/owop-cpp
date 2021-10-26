@@ -10,35 +10,35 @@ import (
 )
 
 type Pixel struct {
-	impl C.struct_CPixel
+	Data [3]byte
+}
+type Chunk C.struct_CChunk
+type ChunkSystem struct {
+	impl unsafe.Pointer
 }
 
 func (p *Pixel) R() uint8 {
-	return uint8(p.impl.data[0])
+	return p.Data[0]
 }
 func (p *Pixel) G() uint8 {
-	return uint8(p.impl.data[1])
+	return p.Data[1]
 }
 func (p *Pixel) B() uint8 {
-	return uint8(p.impl.data[2])
-}
-func (p *Pixel) Data() [3]byte {
-	return *(*[3]byte)(unsafe.Pointer(&p.impl.data))
+	return p.Data[2]
 }
 
-type Chunk struct {
-	impl C.struct_CChunk
+func (c *Chunk) GetPixel(x, y uint8) (Pixel, bool) {
+	if x < 16 && y < 16 {
+		index := 3 * ((x * 16) + y)
+		return Pixel{*(*[3]byte)(unsafe.Pointer(uintptr(unsafe.Pointer(&c.data)) + uintptr(index)))}, true
+	}
+	return Pixel{}, false
 }
-
 func (c *Chunk) Data() [768]byte {
-	return *(*[768]byte)(unsafe.Pointer(&c.impl.data))
+	return *(*[768]byte)(unsafe.Pointer(&c.data))
 }
 func (c *Chunk) IsProtected() bool {
-	return (c.impl.flags & 0b1) != 0
-}
-
-type ChunkSystem struct {
-	impl unsafe.Pointer
+	return (c.flags & 0b1) != 0
 }
 
 func NewChunkSystem() *ChunkSystem {
@@ -53,13 +53,15 @@ func NewChunkSystem() *ChunkSystem {
 	return cs
 }
 func (cs *ChunkSystem) GetPixel(x, y int64) Pixel {
-	return Pixel{C.ChunkSystemGetPixel(cs.impl, C.int64_t(x), C.int64_t(y))}
+	cpixel := C.ChunkSystemGetPixel(cs.impl, C.int64_t(x), C.int64_t(y))
+	return Pixel{*(*[3]uint8)(unsafe.Pointer(&cpixel.data))}
 }
 func (cs *ChunkSystem) SetPixel(x, y int64, r, g, b uint8) bool {
 	return C.ChunkSystemSetPixel(cs.impl, C.int64_t(x), C.int64_t(y), C.uint8_t(r), C.uint8_t(g), C.uint8_t(b)) != 0
 }
 func (cs *ChunkSystem) GetChunk(x, y int32) Chunk {
-	return Chunk{C.ChunkSystemGetChunk(cs.impl, C.int32_t(x), C.int32_t(y))}
+	cchunk := C.ChunkSystemGetChunk(cs.impl, C.int32_t(x), C.int32_t(y))
+	return (Chunk)(cchunk)
 }
 func (cs *ChunkSystem) FillChunk(x, y int32, r, g, b uint8) bool {
 	return C.ChunkSystemFillChunk(cs.impl, C.int32_t(x), C.int32_t(y), C.uint8_t(r), C.uint8_t(g), C.uint8_t(b)) != 0

@@ -2,7 +2,6 @@
 
 OWOP::WorldManager::WorldManager()
 {
-
 }
 
 OWOP::World* OWOP::WorldManager::GetWorld(std::string_view name) const

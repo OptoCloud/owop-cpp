@@ -30,7 +30,7 @@ func main() {
 		wrld := world.NewWorld("lol", [32]uint8{})
 		wrld.SetPixel(0, 0, uint8(i%32), uint8(i%64), uint8(i%128))
 		pixel := wrld.GetPixel(0, 0)
-		fmt.Println(pixel.R(), pixel.Data())
+		fmt.Println(pixel.R(), pixel.Data)
 		wrld.FillChunk(0, 0, uint8(i%13), uint8(i%14), uint8(i%15))
 		fmt.Println(wrld.GetChunk(0, 0))
 	}

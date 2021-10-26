@@ -4,7 +4,6 @@ OWOP::World::World(std::string_view name, std::string_view adminPassword)
     : m_name(name)
     , m_chunkSystem()
 {
-    printf("World Created!\n");
 }
 
 OWOP::World::~World()
