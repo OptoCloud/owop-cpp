@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"owop_server/world"
+	"sync"
 )
 
 type Chunk struct {
@@ -26,13 +28,21 @@ func Close() error {
 }
 
 func main() {
-	for i := 0; i <= 100000; i++ {
-		wrld := world.NewWorld("lol", [32]uint8{})
-		wrld.SetPixel(0, 0, uint8(i%32), uint8(i%64), uint8(i%128))
-		pixel := wrld.GetPixel(0, 0)
-		fmt.Println(pixel.R(), pixel.Data)
-		wrld.FillChunk(0, 0, uint8(i%13), uint8(i%14), uint8(i%15))
-		fmt.Println(wrld.GetChunk(0, 0))
+	wrld := world.NewWorld("lol", [32]uint8{})
+	var wg sync.WaitGroup
+
+	for i := 0; i <= 8; i++ {
+		wg.Add(1)
+		go func(wrld *world.World, wg *sync.WaitGroup) {
+			defer wg.Done()
+			for i := 0; i <= 100000; i++ {
+				rgba := rand.Uint32()
+				wrld.ChunkSystem.SetPixel(rand.Int63(), rand.Int63(), uint8((rgba>>0)&0xF), uint8((rgba>>8)&0xF), uint8((rgba>>16)&0xF))
+			}
+			fmt.Println("Done!")
+		}(wrld, &wg)
 	}
+	wg.Wait()
+
 	Run(1234)
 }

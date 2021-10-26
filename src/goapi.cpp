@@ -21,5 +21,14 @@ CChunk ChunkSystemGetChunk(void* chunkSystemPtr, std::int32_t x, std::int32_t y)
 bool ChunkSystemFillChunk(void *chunkSystemPtr, std::int32_t x, std::int32_t y, std::uint8_t r, std::uint8_t g, std::uint8_t b) {
     return reinterpret_cast<OWOP::ChunkSystem*>(chunkSystemPtr)->fillChunk(x, y, OWOP::Pixel(r,g,b));
 }
+void ChunkSystemProtectChunk(void *chunkSystemPtr, int32_t x, int32_t y) {
+    reinterpret_cast<OWOP::ChunkSystem*>(chunkSystemPtr)->protectChunk(x,y);
+}
+void ChunkSystemUnprotectChunk(void *chunkSystemPtr, int32_t x, int32_t y) {
+    reinterpret_cast<OWOP::ChunkSystem*>(chunkSystemPtr)->unprotectChunk(x,y);
+}
+bool ChunkSystemIsChunkProtected(void *chunkSystemPtr, int32_t x, int32_t y) {
+    return reinterpret_cast<OWOP::ChunkSystem*>(chunkSystemPtr)->isChunkProtected(x,y);
+}
 
 #endif // COMPILE_GOAPI

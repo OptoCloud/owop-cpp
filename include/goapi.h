@@ -20,6 +20,9 @@ struct CPixel ChunkSystemGetPixel(void* chunkSystemPtr, int64_t x, int64_t y);
 bool ChunkSystemSetPixel(void* chunkSystemPtr, int64_t x, int64_t y, uint8_t r, uint8_t g, uint8_t b);
 struct CChunk ChunkSystemGetChunk(void* chunkSystemPtr, int32_t x, int32_t y);
 bool ChunkSystemFillChunk(void* chunkSystemPtr, int32_t x, int32_t y, uint8_t r, uint8_t g, uint8_t b);
+void ChunkSystemProtectChunk(void* chunkSystemPtr, int32_t x, int32_t y);
+void ChunkSystemUnprotectChunk(void* chunkSystemPtr, int32_t x, int32_t y);
+bool ChunkSystemIsChunkProtected(void* chunkSystemPtr, int32_t x, int32_t y);
 
 #ifdef __cplusplus
 }

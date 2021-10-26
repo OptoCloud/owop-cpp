@@ -14,7 +14,7 @@ type Pixel struct {
 }
 type Chunk C.struct_CChunk
 type ChunkSystem struct {
-	impl unsafe.Pointer
+	ptr unsafe.Pointer
 }
 
 func (p *Pixel) R() uint8 {
@@ -44,25 +44,35 @@ func (c *Chunk) IsProtected() bool {
 func NewChunkSystem() *ChunkSystem {
 	cs := &ChunkSystem{}
 
-	cs.impl = C.CreateChunkSystem()
+	cs.ptr = C.CreateChunkSystem()
 
 	runtime.SetFinalizer(cs, func(c *ChunkSystem) {
-		C.DestroyChunkSystem(c.impl)
+		C.DestroyChunkSystem(c.ptr)
 	})
 
 	return cs
 }
 func (cs *ChunkSystem) GetPixel(x, y int64) Pixel {
-	cpixel := C.ChunkSystemGetPixel(cs.impl, C.int64_t(x), C.int64_t(y))
+	cpixel := C.ChunkSystemGetPixel(cs.ptr, C.int64_t(x), C.int64_t(y))
 	return Pixel{*(*[3]uint8)(unsafe.Pointer(&cpixel.data))}
 }
 func (cs *ChunkSystem) SetPixel(x, y int64, r, g, b uint8) bool {
-	return C.ChunkSystemSetPixel(cs.impl, C.int64_t(x), C.int64_t(y), C.uint8_t(r), C.uint8_t(g), C.uint8_t(b)) != 0
+	return C.ChunkSystemSetPixel(cs.ptr, C.int64_t(x), C.int64_t(y), C.uint8_t(r), C.uint8_t(g), C.uint8_t(b)) != 0
 }
 func (cs *ChunkSystem) GetChunk(x, y int32) Chunk {
-	cchunk := C.ChunkSystemGetChunk(cs.impl, C.int32_t(x), C.int32_t(y))
+	cchunk := C.ChunkSystemGetChunk(cs.ptr, C.int32_t(x), C.int32_t(y))
 	return (Chunk)(cchunk)
 }
 func (cs *ChunkSystem) FillChunk(x, y int32, r, g, b uint8) bool {
-	return C.ChunkSystemFillChunk(cs.impl, C.int32_t(x), C.int32_t(y), C.uint8_t(r), C.uint8_t(g), C.uint8_t(b)) != 0
+	return C.ChunkSystemFillChunk(cs.ptr, C.int32_t(x), C.int32_t(y), C.uint8_t(r), C.uint8_t(g), C.uint8_t(b)) != 0
+}
+func (cs *ChunkSystem) ProtectChunk(x, y int32) {
+	C.ChunkSystemProtectChunk(cs.ptr, C.int32_t(x), C.int32_t(y))
+}
+func (cs *ChunkSystem) UnprotectChunk(x, y int32) {
+	C.ChunkSystemUnprotectChunk(cs.ptr, C.int32_t(x), C.int32_t(y))
+}
+
+func (cs *ChunkSystem) IsChunkProtected(x, y int32) bool {
+	return C.ChunkSystemIsChunkProtected(cs.ptr, C.int32_t(x), C.int32_t(y)) != 0
 }
