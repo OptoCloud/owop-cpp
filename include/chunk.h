@@ -1,26 +1,6 @@
 #ifndef OWOPCPP_CHUNK_H
 #define OWOPCPP_CHUNK_H
 
-#ifdef COMPILE_GOAPI
-#ifdef __cplusplus
-#include <cstdint>
-extern "C" {
-#else
-#include <stdint.h>
-#endif // __cplusplus
-
-struct CChunk {
-    uint8_t data[768];
-    uint8_t flags;
-};
-
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-#endif // COMPILE_GOAPI
-
-#ifdef __cplusplus
-
 #include "pixel.h"
 #include "constants.h"
 
@@ -51,10 +31,6 @@ struct Chunk
 
     std::span<const std::byte, OWOP::Internal::CHUNK_BYTES> data() const noexcept;
 
-#ifdef COMPILE_GOAPI
-    CChunk cchunk() const noexcept;
-#endif // COMPILE_GOAPI
-
     OWOP::Chunk& operator=(const OWOP::Chunk& other);
     OWOP::Chunk& operator=(OWOP::Chunk&& other) noexcept;
 private:
@@ -64,5 +40,4 @@ private:
 };
 }
 
-#endif // __cplusplus
 #endif // OWOPCPP_CHUNK_H

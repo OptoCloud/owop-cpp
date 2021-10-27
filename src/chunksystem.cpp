@@ -18,11 +18,6 @@ void OWOP::ChunkSystem::getChunk(std::int32_t x, std::int32_t y, OWOP::Chunk& ch
     chunk = m_chunks[GetMapKey(x, y)];
 }
 
-CChunk OWOP::ChunkSystem::getCChunk(std::int32_t x, std::int32_t y)
-{
-    return m_chunks[GetMapKey(x,y)].cchunk();
-}
-
 bool OWOP::ChunkSystem::fillChunk(std::int32_t x, std::int32_t y, OWOP::Pixel pixel)
 {
     return m_chunks[GetMapKey(x, y)].fill(pixel);

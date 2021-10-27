@@ -9,8 +9,14 @@ project (owopcpp
 set (CMAKE_CXX_FLAGS -DCOMPILE_GOAPI)
 set (CMAKE_CXX_STANDARD 20)
 
+add_subdirectory(vendor/parallel-hashmap)
+add_subdirectory(vendor/websocketpp)
+add_subdirectory(vendor/fmt)
+
 set(owopcpp_sources
-    src/goapi.cpp
+    src/server.cpp
+    src/ipinfo.cpp
+    src/connection.cpp
     src/player.cpp
     src/world.cpp
     src/worldmanager.cpp
@@ -19,9 +25,10 @@ set(owopcpp_sources
     src/chunk.cpp
 )
 set(owopcpp_headers
-    include/goapi.h
-    include/godef.h
     include/owopcpp.h
+    include/server.h
+    include/ipinfo.h
+    include/connection.h
     include/player.h
     include/world.h
     include/worldmanager.h
@@ -34,6 +41,7 @@ set(owopcpp_headers
     include/tooltype.h
     include/playerrank.h
     include/constexpr_math.h
+    include/networking_includes.h
 )
 
 if (OWOP_SHARED)
@@ -49,6 +57,12 @@ else ()
 endif ()
 
 target_include_directories(owopcpp PRIVATE
-    vendor/parallel-hashmap/parallel_hashmap
+    vendor/asio/asio/include
+    vendor/parallel-hashmap
+    vendor/fmt/include
+    vendor/websocketpp
     include
+)
+target_link_libraries(owopcpp PRIVATE
+    fmt
 )

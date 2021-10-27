@@ -1,25 +1,6 @@
 #ifndef OWOPCPP_PIXEL_H
 #define OWOPCPP_PIXEL_H
 
-#ifdef COMPILE_GOAPI
-#ifndef __cplusplus
-#include <stdint.h>
-#else
-#include <cstdint>
-extern "C" {
-#endif // __cplusplus
-
-struct CPixel {
-    uint8_t data[3];
-};
-
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-#endif // COMPILE_GOAPI
-
-#ifdef __cplusplus
-
 #include "constants.h"
 
 #include <span>
@@ -40,19 +21,9 @@ struct Pixel
 
     constexpr std::span<std::byte, OWOP::Internal::PIXEL_BYTES> data() noexcept { return m_data; };
     constexpr std::span<const std::byte, OWOP::Internal::PIXEL_BYTES> data() const noexcept { return m_data; };
-
-#ifdef COMPILE_GOAPI
-    constexpr CPixel cpixel() const noexcept { return CPixel{r(),g(),b()}; }
-#endif // COMPILE_GOAPI
 private:
     std::array<std::byte, OWOP::Internal::PIXEL_BYTES> m_data;
 };
 }
-
-#ifdef COMPILE_GOAPI
-static_assert (sizeof(CPixel) == sizeof(OWOP::Pixel), "GO API differs in size for Pixel struct!");
-#endif // COMPILE_GOAPI
-
-#endif // __cplusplus
 
 #endif // OWOPCPP_PIXEL_H

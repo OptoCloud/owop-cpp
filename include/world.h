@@ -1,7 +1,6 @@
 #ifndef OWOPCPP_WORLD_H
 #define OWOPCPP_WORLD_H
 
-#include "godef.h"
 #include "chunksystem.h"
 #include "player.h"
 #include "uuid.h"
@@ -20,9 +19,6 @@ public:
     ~World();
 
     std::string name() const;
-#ifdef COMPILE_GOAPI
-    _GoString_ nameGostr() const;
-#endif // COMPILE_GOAPI
 
     OWOP::Pixel GetPixel(std::int64_t x, std::int64_t y);
     bool SetPixel(std::int64_t x, std::int64_t y, OWOP::Pixel c);

@@ -1,3 +1,12 @@
 [submodule "vendor/parallel-hashmap"]
 	path = vendor/parallel-hashmap
 	url = https://github.com/greg7mdp/parallel-hashmap.git
+[submodule "vendor/websocketpp"]
+	path = vendor/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "vendor/asio"]
+	path = vendor/asio
+	url = https://github.com/chriskohlhoff/asio.git
+[submodule "vendor/fmt"]
+	path = vendor/fmt
+	url = https://github.com/fmtlib/fmt.git

@@ -5,7 +5,7 @@
 #include "pixel.h"
 #include "constants.h"
 
-#include "phmap.h"
+#include "parallel_hashmap/phmap.h"
 
 #include <shared_mutex>
 #include <memory>
@@ -21,9 +21,6 @@ public:
 
     void setChunk(std::int32_t x, std::int32_t y, const OWOP::Chunk& chunk);
     void getChunk(std::int32_t x, std::int32_t y, OWOP::Chunk& chunk);
-#ifdef COMPILE_GOAPI
-    CChunk getCChunk(std::int32_t x, std::int32_t y);
-#endif
     bool fillChunk(std::int32_t x, std::int32_t y, OWOP::Pixel pixel);
 
     bool setPixel(std::int64_t x, std::int64_t y, OWOP::Pixel pixel);

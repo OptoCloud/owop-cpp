@@ -148,17 +148,6 @@ bool OWOP::Chunk::isProtected() const noexcept
     return CheckFlag<ChunkFlags::Protected>(m_flags);
 }
 
-#ifdef COMPILE_GOAPI
-static_assert (sizeof(CChunk::data) == OWOP::Internal::CHUNK_BYTES, "GO API differs in size for Chunk data!");
-CChunk OWOP::Chunk::cchunk() const noexcept {
-    CChunk c;
-    c.flags = m_flags.load(std::memory_order::relaxed);
-    std::shared_lock l(m_mtx);
-    memcpy(c.data, m_data.data(), OWOP::Internal::CHUNK_BYTES);
-    return c;
-}
-#endif
-
 OWOP::Chunk& OWOP::Chunk::operator=(const Chunk& other)
 {
     if (this != &other) {
