@@ -8,5 +8,6 @@
 typedef websocketpp::server<websocketpp::config::asio> WsppServer;
 typedef WsppServer::message_ptr MessagePtr;
 typedef websocketpp::connection_hdl ConnectionHdl;
+typedef websocketpp::frame::opcode::value OpCode;
 
 #endif // NETWORKING_INCLUDES_H

@@ -1,14 +1,31 @@
 #include "world.h"
 
-OWOP::World::World(std::string_view name, std::string_view adminPassword)
-    : m_name(name)
+OWOP::World::World()
+    : l_name()
+    , m_name()
+    , l_players()
+    , m_players()
     , m_chunkSystem()
 {
 }
 
 OWOP::World::~World()
 {
+}
 
+void OWOP::World::add(const std::shared_ptr<Player>& player)
+{
+    std::unique_lock l(l_players);
+    m_players.insert(player);
+}
+
+void OWOP::World::remove(const std::shared_ptr<Player>& player)
+{
+    std::unique_lock l(l_players);
+    auto it = m_players.find(player);
+    if (it != m_players.end()) {
+        m_players.erase(it);
+    }
 }
 
 std::string OWOP::World::name() const
@@ -17,12 +34,62 @@ std::string OWOP::World::name() const
     return m_name;
 }
 
-OWOP::Pixel OWOP::World::GetPixel(std::int64_t x, std::int64_t y)
+void OWOP::World::setName(std::string_view name)
 {
-    return m_chunkSystem.getPixel(x, y);
+    std::unique_lock l(l_name);
+    m_name = name;
 }
 
-bool OWOP::World::SetPixel(std::int64_t x, std::int64_t y, OWOP::Pixel c)
+void OWOP::World::setChunk(std::int32_t x, std::int32_t y, const Chunk &chunk)
 {
-    return m_chunkSystem.setPixel(x, y, c);
+    m_chunkSystem.setChunk(x, y, chunk);
+}
+
+void OWOP::World::getChunk(std::int32_t x, std::int32_t y, Chunk &chunk)
+{
+    m_chunkSystem.getChunk(x, y, chunk);
+}
+
+bool OWOP::World::fillChunk(std::int32_t x, std::int32_t y, Pixel pixel)
+{
+    if (!m_chunkSystem.fillChunk(x, y, pixel)) {
+        return false;
+    }
+
+    // broadcastToPlayers();
+
+    return true;
+}
+
+bool OWOP::World::setPixel(std::int64_t x, std::int64_t y, Pixel pixel)
+{
+
+}
+
+OWOP::Pixel OWOP::World::getPixel(std::int64_t x, std::int64_t y)
+{
+
+}
+
+void OWOP::World::protectChunk(std::int32_t x, std::int32_t y)
+{
+
+}
+
+void OWOP::World::unprotectChunk(std::int32_t x, std::int32_t y)
+{
+
+}
+
+bool OWOP::World::isChunkProtected(std::int32_t x, std::int32_t y)
+{
+
+}
+
+void OWOP::World::broadcastToPlayers(std::span<const std::byte> data) const
+{
+    std::shared_lock l(l_players);
+    for (auto& player : m_players) {
+        player->sendMessage(data);
+    }
 }

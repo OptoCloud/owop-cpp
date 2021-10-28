@@ -7,7 +7,7 @@
 
 #include <string>
 #include <queue>
-#include <unordered_map>
+#include <unordered_set>
 #include <shared_mutex>
 
 namespace OWOP {
@@ -15,17 +15,32 @@ namespace OWOP {
 class World
 {
 public:
-    World(std::string_view name, std::string_view adminPassword);
+    World();
     ~World();
 
-    std::string name() const;
+    void add(const std::shared_ptr<OWOP::Player>& player);
+    void remove(const std::shared_ptr<OWOP::Player>& player);
 
-    OWOP::Pixel GetPixel(std::int64_t x, std::int64_t y);
-    bool SetPixel(std::int64_t x, std::int64_t y, OWOP::Pixel c);
+    std::string name() const;
+    void setName(std::string_view name);
+
+    void setChunk(std::int32_t x, std::int32_t y, const OWOP::Chunk& chunk);
+    void getChunk(std::int32_t x, std::int32_t y, OWOP::Chunk& chunk);
+    bool fillChunk(std::int32_t x, std::int32_t y, OWOP::Pixel pixel);
+
+    bool setPixel(std::int64_t x, std::int64_t y, OWOP::Pixel pixel);
+    OWOP::Pixel getPixel(std::int64_t x, std::int64_t y);
+
+    void protectChunk(std::int32_t x, std::int32_t y);
+    void unprotectChunk(std::int32_t x, std::int32_t y);
+    bool isChunkProtected(std::int32_t x, std::int32_t y);
 private:
+    void broadcastToPlayers(std::span<const std::byte> data) const;
+
     mutable std::shared_mutex l_name;
     std::string m_name;
-    std::unordered_map<OWOP::Uuid, OWOP::Player> m_players;
+    mutable std::shared_mutex l_players;
+    std::unordered_set<std::shared_ptr<OWOP::Player>> m_players;
     OWOP::ChunkSystem m_chunkSystem;
 };
 

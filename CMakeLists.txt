@@ -35,6 +35,7 @@ set(owopcpp_headers
     include/uuid.h
     include/chunksystem.h
     include/chunk.h
+    include/serialization.h
     include/pixel.h
     include/opcodes.h
     include/constants.h
@@ -64,5 +65,6 @@ target_include_directories(owopcpp PRIVATE
     include
 )
 target_link_libraries(owopcpp PRIVATE
+    pthread
     fmt
 )

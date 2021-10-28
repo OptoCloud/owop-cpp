@@ -14,7 +14,7 @@ public:
 
     std::shared_ptr<Connection> TryAddConnection(ConnectionHdl conHdl, WsppServer::connection_ptr conPtr);
 private:
-    void onDisconnect(ConnectionHdl conHdl);
+    void onDisconnect(Connection* conHdl);
 
     bool m_banned;
     std::vector<std::shared_ptr<Connection>> m_connections;
