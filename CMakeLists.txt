@@ -6,7 +6,6 @@ project (owopcpp
     LANGUAGES CXX
 )
 
-set (CMAKE_CXX_FLAGS -DCOMPILE_GOAPI)
 set (CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(vendor/parallel-hashmap)

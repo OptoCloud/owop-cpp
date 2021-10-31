@@ -3,8 +3,8 @@
 #include "fmt/core.h"
 
 Connection::Connection(ConnectionHdl conHdl, WsppServer::connection_ptr conPtr, std::function<void(Connection*)> onDisconnected)
-    : m_conHdl(conHdl)
-    , m_conPtr(conPtr)
+    : m_conPtr(conPtr)
+    , m_conHdl(conHdl)
     , f_onDisconnected(onDisconnected)
     , m_player(nullptr)
 {
@@ -27,7 +27,7 @@ WsppServer::connection_ptr Connection::conPtr() const
 
 void Connection::send(std::span<const std::byte> data)
 {
-    m_conPtr->send(data.data(), data.size(), OpCode::BINARY);
+    m_conPtr->send(data, OpCode::BINARY);
 }
 
 void Connection::onMessage(ConnectionHdl hdl, MessagePtr msg)

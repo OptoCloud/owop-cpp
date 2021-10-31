@@ -63,27 +63,27 @@ bool OWOP::World::fillChunk(std::int32_t x, std::int32_t y, Pixel pixel)
 
 bool OWOP::World::setPixel(std::int64_t x, std::int64_t y, Pixel pixel)
 {
-
+    return m_chunkSystem.setPixel(x, y, pixel);
 }
 
 OWOP::Pixel OWOP::World::getPixel(std::int64_t x, std::int64_t y)
 {
-
+    return m_chunkSystem.getPixel(x, y);
 }
 
 void OWOP::World::protectChunk(std::int32_t x, std::int32_t y)
 {
-
+    m_chunkSystem.protectChunk(x, y);
 }
 
 void OWOP::World::unprotectChunk(std::int32_t x, std::int32_t y)
 {
-
+    m_chunkSystem.unprotectChunk(x, y);
 }
 
 bool OWOP::World::isChunkProtected(std::int32_t x, std::int32_t y)
 {
-
+    return m_chunkSystem.isChunkProtected(x, y);
 }
 
 void OWOP::World::broadcastToPlayers(std::span<const std::byte> data) const

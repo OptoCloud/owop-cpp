@@ -20,8 +20,8 @@ private:
     void onMessage(ConnectionHdl hdl, MessagePtr msg);
     void onDisconnect(ConnectionHdl hdl);
 
-    ConnectionHdl m_conHdl;
     WsppServer::connection_ptr m_conPtr;
+    websocketpp::connection_hdl m_conHdl;
     std::function<void(Connection*)> f_onDisconnected;
 
     std::shared_ptr<OWOP::Player> m_player;
