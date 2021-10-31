@@ -37,6 +37,7 @@ set(owopcpp_headers
     include/serialization.h
     include/pixel.h
     include/opcodes.h
+    include/netconv.h
     include/constants.h
     include/tooltype.h
     include/playerrank.h
