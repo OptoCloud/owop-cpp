@@ -35,7 +35,7 @@ public:
     void unprotectChunk(std::int32_t x, std::int32_t y);
     bool isChunkProtected(std::int32_t x, std::int32_t y);
 private:
-    void broadcastToPlayers(std::span<const std::byte> data) const;
+    void broadcastToPlayers(std::span<const std::uint8_t> data) const;
 
     mutable std::shared_mutex l_name;
     std::string m_name;

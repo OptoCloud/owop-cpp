@@ -23,14 +23,14 @@ enum class MsgType : std::uint8_t {
 };
 
 struct Uuid {
-    std::span<std::byte, 16> data;
+    std::span<std::uint8_t, 16> data;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
 
     static constexpr std::size_t FixedSize = 16;
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (size < FixedSize) {
             return false;
         }
@@ -46,12 +46,12 @@ struct Color {
     std::uint8_t g;
     std::uint8_t b;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
 
     static constexpr std::size_t FixedSize = sizeof(Color::r) + sizeof(Color::g) + sizeof(Color::b);
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (size < FixedSize) {
             return false;
         }
@@ -67,14 +67,14 @@ struct Position {
     T x;
     T y;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
 
     static_assert (std::is_arithmetic<T>(), "Bad type for Positon struct");
 
     static constexpr std::size_t FixedSize = sizeof(Position<T>::x) + sizeof(Position<T>::y);
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (size < FixedSize) {
             return false;
         }
@@ -91,12 +91,12 @@ struct Cursor {
     Uuid userId;
     PosType pos;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
 
     static constexpr std::size_t FixedSize = Uuid::FixedSize + Cursor::PosType::FixedSize;
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (!Uuid::Validate(ptr, size)) {
             return false;
         }
@@ -108,13 +108,13 @@ template <typename T = std::uint8_t>
 struct String {
     std::string_view data;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
 
     static_assert (std::is_integral<T>(), "Bad type for String struct");
 
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (size < 4) {
             return false;
         }
@@ -136,10 +136,10 @@ struct MsgSwitchWorld {
     String<> worldName;
     String<> nickName;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (!String<>::Validate(ptr, size)) {
             return false;
         }
@@ -150,20 +150,20 @@ struct MsgSwitchWorld {
 struct MsgGetChunk {
     Position<std::int32_t> pos;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Position<std::int32_t>::Validate(ptr, size);
     }
 };
 struct MsgSelectTool {
 
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
 };
@@ -171,10 +171,10 @@ struct MsgUseTool {
     Position<std::int64_t> pos;
     Color color;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (!Position<std::int64_t>::Validate(ptr, size)) {
             return false;
         }
@@ -185,10 +185,10 @@ struct MsgUseTool {
 struct MsgMove {
     Position<std::int64_t> pos;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Color::Validate(ptr, size);
     }
 };
@@ -196,10 +196,10 @@ struct MsgChatMessage {
     Uuid senderId;
     String<> message;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (!Uuid::Validate(ptr, size)) {
             return false;
         }
@@ -211,10 +211,10 @@ struct MsgEventPlayerJoin {
     Uuid playerId;
     String<> nickname;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         if (!Uuid::Validate(ptr, size)) {
             return false;
         }
@@ -225,20 +225,20 @@ struct MsgEventPlayerJoin {
 struct MsgEventPlayerLeave {
     Uuid playerId;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Uuid::Validate(ptr, size);
     }
 };
 struct MsgEventPlayerUpdate {
     Uuid playerId;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Uuid::Validate(ptr, size);
     }
 };
@@ -246,22 +246,22 @@ struct MsgEventPixelUpdate {
     Position<std::int64_t> pos;
     Color col;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Uuid::Validate(ptr, size);
     }
 };
 struct MsgEventChunkLoaded {
     Uuid playerId;
-    std::span<std::byte, 768> data;
+    std::span<std::uint8_t, 768> data;
     std::uint8_t flags;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Uuid::Validate(ptr, size);
     }
 };
@@ -269,10 +269,10 @@ struct MsgEventChunkUpdateFill {
     Position<std::int32_t> pos;
     Color col;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Uuid::Validate(ptr, size);
     }
 };
@@ -280,21 +280,21 @@ struct MsgEventChunkUpdateFlags {
     Position<std::int32_t> pos;
     std::uint8_t flags;
 
-    constexpr bool deserialize(const std::byte*& ptr, std::size_t& size) noexcept {
+    constexpr bool deserialize(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return true;
     }
-    static constexpr bool Validate(const std::byte*& ptr, std::size_t& size) noexcept {
+    static constexpr bool Validate(const std::uint8_t*& ptr, std::size_t& size) noexcept {
         return Uuid::Validate(ptr, size);
     }
 };
 
-constexpr std::pair<bool, MsgType> GetMsgType(std::span<const std::byte> msg) noexcept {
+constexpr std::pair<bool, MsgType> GetMsgType(std::span<const std::uint8_t> msg) noexcept {
     if (msg.size() < sizeof(MsgType)) {
         return { false, MsgType::Invalid };
     }
 
     MsgType type = *(MsgType*)msg.data();
-    const std::byte* ptr = msg.data() + sizeof(MsgType);
+    const std::uint8_t* ptr = msg.data() + sizeof(MsgType);
     std::size_t size = msg.size() - sizeof(MsgType);
 
     switch (type) {
@@ -329,7 +329,7 @@ constexpr std::pair<bool, MsgType> GetMsgType(std::span<const std::byte> msg) no
     }
 }
 constexpr std::pair<bool, MsgType> GetMsgType(std::string_view msg) noexcept {
-    return GetMsgType(std::span<const std::byte>((std::byte*)msg.data(), msg.size()));
+    return GetMsgType(std::span<const std::uint8_t>((std::uint8_t*)msg.data(), msg.size()));
 }
 
 struct MsgRoot {
@@ -350,9 +350,9 @@ struct MsgRoot {
         MsgEventChunkUpdateFlags eventChunkUpdateFlags;
     } messages;
 
-    constexpr bool deserialize(std::span<const std::byte> msg) noexcept {
+    constexpr bool deserialize(std::span<const std::uint8_t> msg) noexcept {
         type = *(MsgType*)msg.data();
-        const std::byte* ptr = msg.data() + sizeof(MsgType);
+        const std::uint8_t* ptr = msg.data() + sizeof(MsgType);
         std::size_t size = msg.size() - sizeof(MsgType);
 
         switch (type) {
@@ -387,7 +387,7 @@ struct MsgRoot {
         }
     }
     constexpr bool deserialize(std::string_view msg) noexcept {
-        return deserialize(std::span<const std::byte>((std::byte*)msg.data(), msg.size()));
+        return deserialize(std::span<const std::uint8_t>((std::uint8_t*)msg.data(), msg.size()));
     }
 };
 

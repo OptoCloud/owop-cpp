@@ -27,7 +27,7 @@ constexpr bool IsInBounds(std::uint32_t index) noexcept {
 }
 
 OWOP::Chunk::Chunk()
-    : m_data{ std::byte(0) }
+    : m_data{ std::uint8_t(0) }
     , m_flags(0)
     , m_mtx()
 {
@@ -47,7 +47,7 @@ OWOP::Chunk::Chunk(Chunk&& other) noexcept
     std::shared_lock l(other.m_mtx);
     m_data = std::move(other.m_data);
     m_flags.store(other.m_flags.load(std::memory_order::relaxed), std::memory_order::relaxed);
-    other.m_data = { std::byte(0) };
+    other.m_data = { std::uint8_t(0) };
     other.m_flags.store(0, std::memory_order::relaxed);
 }
 
@@ -69,7 +69,7 @@ OWOP::Chunk::Chunk(std::span<const OWOP::Pixel, OWOP::Internal::CHUNK_PIXELS> pi
     }
 }
 
-OWOP::Chunk::Chunk(std::span<const std::byte, OWOP::Internal::CHUNK_BYTES> data, bool isProtected)
+OWOP::Chunk::Chunk(std::span<const std::uint8_t, OWOP::Internal::CHUNK_BYTES> data, bool isProtected)
     : m_flags(0)
     , m_mtx()
 {
@@ -170,7 +170,7 @@ OWOP::Chunk& OWOP::Chunk::operator=(Chunk&& other) noexcept
 
         m_data = std::move(other.m_data);
         m_flags.store(other.m_flags.load(std::memory_order::relaxed), std::memory_order::relaxed);
-        other.m_data = { std::byte(0) };
+        other.m_data = { std::uint8_t(0) };
         other.m_flags.store(0, std::memory_order::relaxed);
     }
     return *this;

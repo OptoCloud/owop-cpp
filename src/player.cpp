@@ -9,7 +9,7 @@ OWOP::Player::Player(Connection* connection, World* world)
 
 }
 
-void OWOP::Player::sendMessage(std::span<const std::byte> data) const
+void OWOP::Player::sendMessage(std::span<const std::uint8_t> data) const
 {
     m_connection->send(data);
 }

@@ -17,7 +17,7 @@ public:
     Player(Connection* connection, OWOP::World* world);
     ~Player();
 
-    void sendMessage(std::span<const std::byte> data) const;
+    void sendMessage(std::span<const std::uint8_t> data) const;
 
     OWOP::World* world() const noexcept { return m_world; }
 private:

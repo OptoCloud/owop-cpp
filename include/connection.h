@@ -15,7 +15,7 @@ public:
     ConnectionHdl conHdl() const;
     WsppServer::connection_ptr conPtr() const;
 
-    void send(std::span<const std::byte> data);
+    void send(std::span<const std::uint8_t> data);
 private:
     void onMessage(ConnectionHdl hdl, MessagePtr msg);
     void onDisconnect(ConnectionHdl hdl);

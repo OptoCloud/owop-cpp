@@ -86,7 +86,7 @@ bool OWOP::World::isChunkProtected(std::int32_t x, std::int32_t y)
     return m_chunkSystem.isChunkProtected(x, y);
 }
 
-void OWOP::World::broadcastToPlayers(std::span<const std::byte> data) const
+void OWOP::World::broadcastToPlayers(std::span<const std::uint8_t> data) const
 {
     std::shared_lock l(l_players);
     for (auto& player : m_players) {

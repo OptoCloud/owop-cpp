@@ -41,7 +41,7 @@ bool Server::listen(std::uint16_t port)
 bool Server::validateConnection(ConnectionHdl hdl)
 {
     auto conPtr = m_server.get_con_from_hdl(hdl);
-    std::string connectingIp = conPtr->get_request_header("Cf-Connecting-Ip");
+    std::string_view connectingIp = conPtr->get_request_header("Cf-Connecting-Ip");
 
     auto connection = m_ipInfo[connectingIp].ptr->TryAddConnection(hdl, conPtr);
     if (connection == nullptr) {

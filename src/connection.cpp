@@ -25,7 +25,7 @@ WsppServer::connection_ptr Connection::conPtr() const
     return m_conPtr;
 }
 
-void Connection::send(std::span<const std::byte> data)
+void Connection::send(std::span<const std::uint8_t> data)
 {
     m_conPtr->send(data, OpCode::BINARY);
 }
